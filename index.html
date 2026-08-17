@@ -1,11 +1,486 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>NCVPS Test Page</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CRAFT Seeding Challenges for NCVPS Teachers</title>
+<style>
+  :root{
+    --navy:#1d3d66;
+    --sky:#51bae8;
+    --sky-light:#d7f1fb;
+    --lime:#b5d443;
+    --lime-light:#f4f8e8;
+    --orange:#e68735;
+    --text:#1f2933;
+    --muted:#5b6470;
+    --border:#b7b9bb;
+    --correct:#246b3b;
+    --correct-bg:#edf7ef;
+    --incorrect:#a32626;
+    --incorrect-bg:#fff4f4;
+    --focus:#7a3ff2;
+  }
+
+  * { box-sizing:border-box; }
+  body{
+    margin:0;
+    font-family:Arial, Helvetica, sans-serif;
+    color:var(--text);
+    background:#fff;
+    line-height:1.55;
+  }
+  main{
+    max-width:980px;
+    margin:0 auto;
+    padding:28px 18px 60px;
+  }
+  h1,h2,h3{ line-height:1.2; }
+  h1{ color:var(--navy); margin-bottom:8px; }
+  .intro{
+    border-left:8px solid var(--sky);
+    background:#f7fbfd;
+    padding:18px 20px;
+    margin:18px 0 28px;
+    border-radius:6px;
+  }
+  .powerups{
+    margin-bottom:34px;
+  }
+  .powerups-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+    gap:12px;
+  }
+  .powerup{
+    border:2px solid var(--sky);
+    border-radius:6px;
+    padding:14px;
+    text-align:center;
+    background:var(--sky-light);
+  }
+  .powerup:nth-child(even){
+    border-color:var(--lime);
+    background:var(--lime-light);
+  }
+  .powerup strong{
+    display:block;
+    font-size:1.5rem;
+    color:var(--navy);
+  }
+  .challenge{
+    border:1px solid var(--border);
+    border-left:8px solid var(--sky);
+    border-radius:6px;
+    margin:0 0 24px;
+    overflow:hidden;
+  }
+  .challenge.alt{ border-left-color:var(--lime); }
+  .challenge.final{ border-left-color:var(--orange); }
+  .challenge-header{
+    background:var(--navy);
+    color:#fff;
+    padding:18px 20px;
+  }
+  .challenge.alt .challenge-header{
+    background:var(--sky-light);
+    color:var(--navy);
+  }
+  .badge{
+    display:inline-block;
+    background:var(--lime);
+    color:#000;
+    padding:4px 10px;
+    border-radius:20px;
+    font-size:.84rem;
+    font-weight:700;
+  }
+  .challenge.alt .badge{
+    background:var(--navy);
+    color:#fff;
+  }
+  .challenge.final .badge{
+    background:var(--orange);
+    color:#000;
+  }
+  .challenge-header h2{
+    margin:10px 0 0;
+    font-size:1.35rem;
+    color:inherit;
+  }
+  .challenge-body{ padding:22px; }
+  .scenario{
+    background:#f5f5f5;
+    border-left:6px solid var(--sky);
+    border-radius:6px;
+    padding:16px 18px;
+    margin:10px 0 18px;
+  }
+  .alt .scenario{ border-left-color:var(--lime); }
+  .final .scenario{ border-left-color:var(--orange); }
+  fieldset{
+    border:0;
+    padding:0;
+    margin:18px 0 0;
+  }
+  legend{
+    font-weight:700;
+    font-size:1.05rem;
+    margin-bottom:10px;
+  }
+  .choice{
+    display:flex;
+    gap:10px;
+    align-items:flex-start;
+    border:1px solid var(--border);
+    border-radius:6px;
+    padding:12px 14px;
+    margin:10px 0;
+    background:#fff;
+  }
+  .choice:hover{ background:#fafafa; }
+  .choice input{
+    margin-top:4px;
+    transform:scale(1.15);
+  }
+  .choice label{ cursor:pointer; flex:1; }
+  button{
+    border:0;
+    border-radius:6px;
+    padding:11px 16px;
+    font-weight:700;
+    cursor:pointer;
+    background:var(--navy);
+    color:#fff;
+    margin-top:12px;
+  }
+  button.secondary{
+    background:#eef2f6;
+    color:var(--navy);
+    border:1px solid var(--border);
+    margin-left:8px;
+  }
+  button:hover{ filter:brightness(.96); }
+  button:focus-visible,
+  input:focus-visible + label,
+  summary:focus-visible{
+    outline:3px solid var(--focus);
+    outline-offset:3px;
+  }
+  .feedback{
+    margin-top:14px;
+    padding:14px 16px;
+    border-radius:6px;
+    border-left:6px solid var(--navy);
+    background:#f5f5f5;
+  }
+  .feedback.correct{
+    background:var(--correct-bg);
+    border-left-color:var(--correct);
+  }
+  .feedback.incorrect{
+    background:var(--incorrect-bg);
+    border-left-color:var(--incorrect);
+  }
+  .feedback[hidden]{ display:none; }
+  .hint{
+    margin-top:14px;
+    color:var(--muted);
+    font-size:.96rem;
+  }
+  .prompt-card{
+    border:1px solid var(--border);
+    border-radius:6px;
+    padding:14px;
+    margin:10px 0;
+    background:#fff;
+  }
+  .prompt-card strong{ color:var(--navy); }
+  .craft-scan{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+    gap:10px;
+    margin-top:10px;
+  }
+  .scan-item{
+    border:1px solid var(--border);
+    border-radius:6px;
+    padding:10px 12px;
+  }
+  .scoreboard{
+    position:sticky;
+    bottom:12px;
+    margin-top:28px;
+    border:2px solid var(--navy);
+    border-radius:8px;
+    padding:12px 16px;
+    background:#fff;
+    box-shadow:0 3px 12px rgba(0,0,0,.12);
+  }
+  .scoreboard strong{ color:var(--navy); }
+  .sr-only{
+    position:absolute;
+    width:1px;
+    height:1px;
+    padding:0;
+    margin:-1px;
+    overflow:hidden;
+    clip:rect(0,0,0,0);
+    white-space:nowrap;
+    border:0;
+  }
+  details{
+    margin-top:14px;
+    border:1px solid var(--border);
+    border-radius:6px;
+    padding:10px 12px;
+  }
+  summary{
+    cursor:pointer;
+    font-weight:700;
+    color:var(--navy);
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{ scroll-behavior:auto !important; }
+  }
+</style>
 </head>
 <body>
-  <h1>NCVPS GitHub Pages Test</h1>
-  <p>If you can see this page, GitHub Pages is working.</p>
+<main>
+  <h1>CRAFT Prompt Challenge: Seeding Level</h1>
+  <div class="intro">
+    <p><strong>Your mission:</strong> Inspect realistic AI prompts an NCVPS teacher might use. At the Seeding level, you are not trying to write the perfect prompt from scratch. You are learning to notice what makes a prompt more useful, more specific, and easier to act on.</p>
+    <p><strong>Accessibility note:</strong> Every interaction works with a keyboard, feedback is written in text rather than communicated by color alone, and no timed responses are required.</p>
+  </div>
+
+  <section class="powerups" aria-labelledby="powerups-heading">
+    <h2 id="powerups-heading">Your CRAFT Power-Ups</h2>
+    <div class="powerups-grid">
+      <div class="powerup"><strong>C</strong>Context</div>
+      <div class="powerup"><strong>R</strong>Role</div>
+      <div class="powerup"><strong>A</strong>Audience</div>
+      <div class="powerup"><strong>F</strong>Format</div>
+      <div class="powerup"><strong>T</strong>Task &amp; Tone</div>
+    </div>
+  </section>
+
+  <section class="challenge" aria-labelledby="c1-heading">
+    <div class="challenge-header">
+      <span class="badge">CHALLENGE 1</span>
+      <h2 id="c1-heading">Announcement Upgrade</h2>
+    </div>
+    <div class="challenge-body">
+      <p><strong>NCVPS situation:</strong> You want AI to help draft a weekly announcement. The course content and assignments already exist.</p>
+      <div class="scenario"><strong>Teacher Prompt:</strong><br>"Write an announcement reminding students to complete this week's work."</div>
+
+      <fieldset data-question="q1" data-answer="c">
+        <legend>Which addition would most improve the <em>Context</em> of this prompt?</legend>
+        <div class="choice"><input type="radio" name="q1" id="q1a" value="a"><label for="q1a">"You are a friendly online teacher."</label></div>
+        <div class="choice"><input type="radio" name="q1" id="q1b" value="b"><label for="q1b">"Use a bulleted list."</label></div>
+        <div class="choice"><input type="radio" name="q1" id="q1c" value="c"><label for="q1c">"Students should complete the Module 3 lesson, submit the discussion post, and check teacher feedback before Friday."</label></div>
+        <div class="choice"><input type="radio" name="q1" id="q1d" value="d"><label for="q1d">"Keep the tone upbeat."</label></div>
+        <button type="button" class="check-btn">Check my choice</button>
+        <div class="feedback" aria-live="polite" hidden></div>
+      </fieldset>
+
+      <details>
+        <summary>Seeding clue</summary>
+        <p><strong>Context</strong> gives AI the situation and background it needs. In NCVPS, that often means the module, current pacing point, deadlines, or what students should pay attention to, not creating new course content.</p>
+      </details>
+    </div>
+  </section>
+
+  <section class="challenge alt" aria-labelledby="c2-heading">
+    <div class="challenge-header">
+      <span class="badge">CHALLENGE 2</span>
+      <h2 id="c2-heading">Prompt Inspector</h2>
+    </div>
+    <div class="challenge-body">
+      <p><strong>NCVPS situation:</strong> A student has stopped submitting work, and you want help drafting a supportive outreach message.</p>
+      <div class="scenario"><strong>Teacher Prompt:</strong><br>"Act as a supportive online teacher. Write a short message to a high school student who has not submitted work this week. Ask the student to reply with one barrier that is getting in the way and one next step they can take. Keep the tone encouraging and nonjudgmental. Format the message as a short Canvas Inbox message."</div>
+
+      <fieldset data-question="q2" data-multi="true" data-answer="r,a,f,t">
+        <legend>Which CRAFT elements are clearly present? Select all that apply.</legend>
+        <div class="craft-scan">
+          <div class="scan-item"><input type="checkbox" id="q2c" value="c"><label for="q2c"> C: Context</label></div>
+          <div class="scan-item"><input type="checkbox" id="q2r" value="r"><label for="q2r"> R: Role</label></div>
+          <div class="scan-item"><input type="checkbox" id="q2a" value="a"><label for="q2a"> A: Audience</label></div>
+          <div class="scan-item"><input type="checkbox" id="q2f" value="f"><label for="q2f"> F: Format</label></div>
+          <div class="scan-item"><input type="checkbox" id="q2t" value="t"><label for="q2t"> T: Task &amp; Tone</label></div>
+        </div>
+        <button type="button" class="check-btn">Inspect the prompt</button>
+        <div class="feedback" aria-live="polite" hidden></div>
+      </fieldset>
+
+      <details>
+        <summary>Why this is useful</summary>
+        <p>Strong prompts do not always need every CRAFT element to be equally detailed. Seeding practice is about recognizing what is already doing useful work before adding more.</p>
+      </details>
+    </div>
+  </section>
+
+  <section class="challenge" aria-labelledby="c3-heading">
+    <div class="challenge-header">
+      <span class="badge">CHALLENGE 3</span>
+      <h2 id="c3-heading">Accommodation-Aware Prompt</h2>
+    </div>
+    <div class="challenge-body">
+      <p><strong>NCVPS situation:</strong> You want AI to help make a teacher-created weekly checklist easier to follow for a student who benefits from chunked directions. You are not asking AI to change course requirements.</p>
+      <div class="scenario"><strong>Teacher Prompt:</strong><br>"Make this easier for my student with an IEP."</div>
+
+      <fieldset data-question="q3" data-answer="b">
+        <legend>Which revision gives AI the clearest and safest direction?</legend>
+        <div class="choice"><input type="radio" name="q3" id="q3a" value="a"><label for="q3a">"The student has an IEP. Decide what accommodations they should receive and rewrite the assignment."</label></div>
+        <div class="choice"><input type="radio" name="q3" id="q3b" value="b"><label for="q3b">"Reformat the teacher-created checklist below into short, numbered steps with one action per step. Preserve all requirements and deadlines. Do not add, remove, or change course content."</label></div>
+        <div class="choice"><input type="radio" name="q3" id="q3c" value="c"><label for="q3c">"Make the assignment much easier and shorter."</label></div>
+        <div class="choice"><input type="radio" name="q3" id="q3d" value="d"><label for="q3d">"Write a new version of the lesson for special education students."</label></div>
+        <button type="button" class="check-btn">Check my choice</button>
+        <div class="feedback" aria-live="polite" hidden></div>
+      </fieldset>
+
+      <details>
+        <summary>Seeding clue</summary>
+        <p>Look for prompts that tell AI what support to provide while preserving the original course expectations. The prompt should describe the needed adjustment rather than asking AI to determine a student's services.</p>
+      </details>
+    </div>
+  </section>
+
+  <section class="challenge alt" aria-labelledby="c4-heading">
+    <div class="challenge-header">
+      <span class="badge">CHALLENGE 4</span>
+      <h2 id="c4-heading">Which Prompt Is More Usable?</h2>
+    </div>
+    <div class="challenge-body">
+      <p><strong>NCVPS situation:</strong> You need a concise parent or guardian communication about missing work.</p>
+
+      <div class="prompt-card"><strong>Prompt A</strong><br>"Write an email about missing assignments."</div>
+      <div class="prompt-card"><strong>Prompt B</strong><br>"Write a brief email to a parent or guardian explaining that the student currently has three missing assignments. Use a professional, supportive tone. Include a clear invitation to contact me with questions and a reminder that the student can still take a next step. Keep the message under 150 words and include a subject line."</div>
+
+      <fieldset data-question="q4" data-answer="b">
+        <legend>Which prompt is more likely to produce a message you can use with minimal editing?</legend>
+        <div class="choice"><input type="radio" name="q4" id="q4a" value="a"><label for="q4a">Prompt A</label></div>
+        <div class="choice"><input type="radio" name="q4" id="q4b" value="b"><label for="q4b">Prompt B</label></div>
+        <button type="button" class="check-btn">Check my choice</button>
+        <div class="feedback" aria-live="polite" hidden></div>
+      </fieldset>
+
+      <details>
+        <summary>CRAFT scan</summary>
+        <p>Prompt B identifies the audience, task, tone, and format, while also providing enough situational context to guide the message. It is specific without asking AI to invent course content.</p>
+      </details>
+    </div>
+  </section>
+
+  <section class="challenge final" aria-labelledby="c5-heading">
+    <div class="challenge-header">
+      <span class="badge">FINAL CHALLENGE</span>
+      <h2 id="c5-heading">The CRAFT Boss: Best-Fit Prompt</h2>
+    </div>
+    <div class="challenge-body">
+      <p><strong>NCVPS situation:</strong> A student has logged in but has not meaningfully engaged with the course. You want help drafting outreach that encourages a response without sounding punitive.</p>
+
+      <fieldset data-question="q5" data-answer="c">
+        <legend>Which prompt best uses CRAFT for this situation?</legend>
+        <div class="choice"><input type="radio" name="q5" id="q5a" value="a"><label for="q5a">"Tell this student to participate more."</label></div>
+        <div class="choice"><input type="radio" name="q5" id="q5b" value="b"><label for="q5b">"You are a teacher. Write an email to a student about engagement."</label></div>
+        <div class="choice"><input type="radio" name="q5" id="q5c" value="c"><label for="q5c">"Act as a supportive NCVPS teacher. Draft a short Canvas Inbox message for a high school student who has logged in but has not yet completed meaningful course work this week. Acknowledge that getting started can be difficult, ask one simple question that invites the student to share what is getting in the way, and end with one manageable next step. Keep the tone warm, respectful, and nonjudgmental. Do not invent assignment details."</label></div>
+        <div class="choice"><input type="radio" name="q5" id="q5d" value="d"><label for="q5d">"Write a long motivational message that explains why school is important."</label></div>
+        <button type="button" class="check-btn">Defeat the CRAFT Boss</button>
+        <div class="feedback" aria-live="polite" hidden></div>
+      </fieldset>
+
+      <details>
+        <summary>What to notice after you answer</summary>
+        <p>The strongest prompt gives AI a role, audience, situation, message format, specific task, and desired tone. It also places a useful boundary around the output by telling AI not to invent assignment details.</p>
+      </details>
+    </div>
+  </section>
+
+  <div class="scoreboard" role="status" aria-live="polite">
+    <strong>CRAFT Progress:</strong> <span id="score">0</span> of 5 challenges completed correctly.
+    <span id="score-message"></span>
+  </div>
+</main>
+
+<script>
+(function(){
+  const completed = new Set();
+
+  const feedbackText = {
+    q1: {
+      correct: "<strong>Correct.</strong> That addition supplies concrete situational information: what students should do and when. The other choices strengthen Role, Format, or Tone.",
+      incorrect: "<strong>Try again.</strong> Look for the option that gives AI background about the current week of the course, rather than how to sound or organize the response."
+    },
+    q2: {
+      correct: "<strong>Great inspection.</strong> Role, Audience, Format, and Task & Tone are all explicit. There is some situational information, but the prompt does not give much course-specific context such as the module, pacing point, or current assignment details.",
+      incorrect: "<strong>Take another look.</strong> Identify the words that tell AI who to be, who the message is for, what to produce, how it should sound, and where the message will be used."
+    },
+    q3: {
+      correct: "<strong>Correct.</strong> This prompt names the support needed, preserves the original requirements, and gives AI a clear boundary. It supports access without asking AI to decide accommodations or create replacement course content.",
+      incorrect: "<strong>Try again.</strong> The best choice should preserve course expectations and describe the requested support without asking AI to make accommodation decisions."
+    },
+    q4: {
+      correct: "<strong>Correct.</strong> Prompt B is more usable because it gives AI enough CRAFT information to draft a focused message with the right audience, tone, content, and format.",
+      incorrect: "<strong>Not quite.</strong> Ask which prompt is more likely to produce something close to ready-to-send without forcing you to supply several missing details afterward."
+    },
+    q5: {
+      correct: "<strong>CRAFT Boss defeated.</strong> This prompt uses the CRAFT elements to guide a realistic NCVPS communication task while setting an important boundary: do not invent assignment details.",
+      incorrect: "<strong>Keep inspecting.</strong> The strongest prompt should make the situation, audience, task, tone, format, and boundaries clear enough that the AI does not have to guess."
+    }
+  };
+
+  function normalize(arr){ return arr.slice().sort().join(","); }
+
+  document.querySelectorAll(".check-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const fs = btn.closest("fieldset");
+      const q = fs.dataset.question;
+      const isMulti = fs.dataset.multi === "true";
+      const expected = fs.dataset.answer;
+      const feedback = fs.querySelector(".feedback");
+      let actual = "";
+
+      if(isMulti){
+        actual = normalize([...fs.querySelectorAll('input[type="checkbox"]:checked')].map(x => x.value));
+        actual = actual.split(",").filter(Boolean).sort().join(",");
+        const exp = expected.split(",").sort().join(",");
+        show(actual === exp);
+      } else {
+        const selected = fs.querySelector('input[type="radio"]:checked');
+        if(!selected){
+          feedback.hidden = false;
+          feedback.className = "feedback incorrect";
+          feedback.innerHTML = "<strong>Select an answer first.</strong> Then choose the check button.";
+          return;
+        }
+        show(selected.value === expected);
+      }
+
+      function show(correct){
+        feedback.hidden = false;
+        feedback.className = "feedback " + (correct ? "correct" : "incorrect");
+        feedback.innerHTML = correct ? feedbackText[q].correct : feedbackText[q].incorrect;
+        if(correct){
+          completed.add(q);
+          updateScore();
+        }
+      }
+    });
+  });
+
+  function updateScore(){
+    const score = document.getElementById("score");
+    const message = document.getElementById("score-message");
+    score.textContent = completed.size;
+    if(completed.size === 5){
+      message.textContent = " You completed the Seeding challenge.";
+    } else if(completed.size >= 3){
+      message.textContent = " You are building a strong CRAFT eye.";
+    } else {
+      message.textContent = "";
+    }
+  }
+})();
+</script>
 </body>
 </html>
